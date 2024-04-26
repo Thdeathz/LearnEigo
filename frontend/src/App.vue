@@ -1,23 +1,28 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
-  </div>
+  <component :is="layout" class="min-h-[100vh]">
+    <router-view :key="path"/>
+  </component>
 </template>
+<script setup>
+import {computed,ref, watch} from "vue";
+import {useRoute, useRouter} from "vue-router";
+import LayoutDefault from "@/layouts/LayoutDefault.vue";
+import LayoutAuth from "@/layouts/LayoutAuth.vue";
 
-<script>
-export default {
-  name: 'App'
+const listLayout = {
+  LayoutDefault: LayoutDefault,
+  LayoutAuth: LayoutAuth,
 }
+
+const layout = ref('')
+const router = useRouter();
+const route = useRoute();
+const path = computed(() => route.fullPath)
+
+
+router.beforeEach(async (to, from, next) => {
+  layout.value = listLayout[to.meta?.layout]
+  window.scrollTo(0, 0);
+  next()
+})
 </script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
