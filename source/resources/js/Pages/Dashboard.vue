@@ -1,22 +1,111 @@
-<script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
-</script>
-
 <template>
-    <Head title="Dashboard" />
-
-    <AuthenticatedLayout>
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard</h2>
+  <AuthenticatedLayout>
+    <a-table :columns="columns" :data-source="data">
+      <template #headerCell="{ column }">
+        <template v-if="column.key === 'name'">
+          <span>
+            <smile-outlined />
+            Name
+          </span>
         </template>
+      </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">You're logged in!</div>
-                </div>
-            </div>
-        </div>
-    </AuthenticatedLayout>
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'name'">
+          <a>
+            {{ record.name }}
+          </a>
+        </template>
+        <template v-else-if="column.key === 'tags'">
+          <span>
+            <a-tag
+              v-for="tag in record.tags"
+              :key="tag"
+              :color="tag === 'loser' ? 'volcano' : tag.length > 5 ? 'geekblue' : 'green'"
+            >
+              {{ tag.toUpperCase() }}
+            </a-tag>
+          </span>
+        </template>
+        <template v-else-if="column.key === 'action'">
+          <span>
+            <a>Invite — {{ record.name }}</a>
+            <a-divider type="vertical" />
+            <a>Delete</a>
+            <a-divider type="vertical" />
+            <a class="ant-dropdown-link">
+              More actions
+              <down-outlined />
+            </a>
+          </span>
+        </template>
+      </template>
+    </a-table>
+  </AuthenticatedLayout>
 </template>
+
+<script>
+import { SmileOutlined, DownOutlined } from '@ant-design/icons-vue';
+import { defineComponent } from 'vue';
+import { Table, Tag, Divider } from 'ant-design-vue';
+import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
+import { ref } from 'vue';
+
+const columns = [{
+  title: 'Name',
+  dataIndex: 'name',
+  key: 'name',
+}, {
+  title: 'Age',
+  dataIndex: 'age',
+  key: 'age',
+}, {
+  title: 'Address',
+  dataIndex: 'address',
+  key: 'address',
+}, {
+  title: 'Tags',
+  key: 'tags',
+  dataIndex: 'tags',
+}, {
+  title: 'Action',
+  key: 'action',
+}];
+
+const data = [{
+  key: '1',
+  name: 'John Brown',
+  age: 32,
+  address: 'New York No. 1 Lake Park',
+  tags: ['nice', 'developer'],
+}, {
+  key: '2',
+  name: 'Jim Green',
+  age: 42,
+  address: 'London No. 1 Lake Park',
+  tags: ['loser'],
+}, {
+  key: '3',
+  name: 'Joe Black',
+  age: 32,
+  address: 'Sidney No. 1 Lake Park',
+  tags: ['cool', 'teacher'],
+}];
+
+export default defineComponent({
+  components: {
+    SmileOutlined,
+    DownOutlined,
+    AuthenticatedLayout,
+    'a-table': Table,
+    'a-tag': Tag,
+    'a-divider': Divider
+  },
+  setup() {
+    return {
+      data,
+      columns
+    };
+  },
+});
+</script>
