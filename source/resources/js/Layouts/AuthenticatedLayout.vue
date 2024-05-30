@@ -40,7 +40,7 @@ const showingNavigationDropdown = ref(false);
                                 </NavLink>
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink>
+                                <NavLink :href="route('tags.index')">
                                     Ghi chú
                                 </NavLink>
                             </div>
@@ -130,6 +130,12 @@ const showingNavigationDropdown = ref(false);
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
+                        </ResponsiveNavLink>
+                    </div>
+
+                    <div class="pt-2 pb-3 space-y-1">
+                        <ResponsiveNavLink :href="route('tags.index')">
+                            Ghi chú
                         </ResponsiveNavLink>
                     </div>
 

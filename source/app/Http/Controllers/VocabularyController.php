@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVocabularyRequest;
 use App\Http\Requests\UpdateVocabularyRequest;
+use Illuminate\Http\Request;
 use App\Models\Vocabulary;
+use Illuminate\Support\Facades\DB;
 
 class VocabularyController extends Controller
 {
@@ -29,7 +31,7 @@ class VocabularyController extends Controller
      */
     public function store(StoreVocabularyRequest $request)
     {
-        //
+
     }
 
     /**
@@ -62,5 +64,12 @@ class VocabularyController extends Controller
     public function destroy(Vocabulary $vocabulary)
     {
         //
+    }
+
+    public function search(Request $request)
+    {
+        $vocabularySearch = $request->input('name')->upper();
+        $vocabulary = DB::table('vocabularies') -> where('name', '=', $vocabularySearch) ->get();
+        dd($vocabulary);
     }
 }
