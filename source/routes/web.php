@@ -25,6 +25,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/rooms', [TagController::class, 'index'])->name('tags.index');
+Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
 
 require __DIR__.'/auth.php';
