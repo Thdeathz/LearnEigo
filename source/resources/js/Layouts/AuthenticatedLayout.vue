@@ -1,6 +1,5 @@
 <script>
 import { defineComponent, ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link as InertiaLink } from '@inertiajs/vue3';
 import { PieChartOutlined, DesktopOutlined, UserOutlined, SearchOutlined, FileOutlined, LaptopOutlined, NotificationOutlined, DownOutlined, HomeFilled, FileTextFilled, IdcardFilled } from '@ant-design/icons-vue';
 import { Layout, Menu, Breadcrumb, Dropdown } from 'ant-design-vue';
@@ -33,8 +32,20 @@ export default defineComponent({
     'inertia-link': InertiaLink,
   },
   setup() {
+    const getKeys = () => {
+        const currentRoute = route().current();
+        if(currentRoute.includes('dashboard')){
+            return ref(['1']);
+        }else if(currentRoute.includes('tags')){
+            return ref(['2']);
+        }else if(currentRoute.includes('flashcard')){
+            return ref(['3']);
+        }else if(currentRoute.includes('search')){
+            return ref(['4']);
+        }
+    }
     const collapsed = ref(false);
-    const selectedKeys = ref(['1']);
+    const selectedKeys = getKeys();
     const selectedKeys1 = ref(['0']);
     const selectedKeys2 = ref(['2']);
     const openKeys = ref(['sub1']);
@@ -95,7 +106,7 @@ export default defineComponent({
 
       </a-layout-header>
       <a-layout>
-        <a-layout-sider v-model:collapsed="collapsed" :style="{backgroundColor: '#ffff' }" :trigger="null" collapsible>
+        <a-layout-sider v-model:collapsed="collapsed" :style="{backgroundColor: '#ffff', overflow: 'auto', height: '100vh', position: 'fixed', left: 0, top: '64px', bottom: 0 }" :trigger="null" collapsible>
       <div class="logo" />
       <a-menu v-model:selectedKeys="selectedKeys" theme="light" mode="inline">
         <a-menu-item key="1">
@@ -107,7 +118,7 @@ export default defineComponent({
         <a-menu-item key="2">
           <FileTextFilled />
           <span>
-            <a>Ghi chú</a>
+            <a :href="route('tags.index')">Ghi chú</a>
           </span>
         </a-menu-item>
         <a-menu-item key="3">
@@ -119,23 +130,16 @@ export default defineComponent({
         <a-menu-item key="4">
           <search-outlined />
           <span>
-            <a>Search</a>
+            <a :href="route('tags.show', {id:1})">Search</a>
           </span>
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
-        <a-layout style="padding: 0 24px 24px">
+        <a-layout style="padding: 24px 24px 24px 200px">
           <a-breadcrumb style="margin: 16px 0">
           </a-breadcrumb>
-          <!-- <a-layout-content
-            :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
-          >
-            Content
-          </a-layout-content> -->
-          <main :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-
+          <main :style="{ background: '#fff', padding: '24px', margin: 0, overflow: 'auto', minHeight: '100vh', top: '64px' }">
             <slot />
-
           </main>
           <a-layout-footer style="text-align: center">
             LearnEigo ©2024 Created by Team Uncle4
@@ -167,6 +171,12 @@ export default defineComponent({
   display: flex;
   justify-content: flex-end;
   align-items: center;
+}
+.ant-layout-header {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
 }
 
   </style>

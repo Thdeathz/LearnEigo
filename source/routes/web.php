@@ -26,5 +26,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
+Route::get('/tags/{id}', [TagController::class, 'show'])->name('tags.show');
 
 require __DIR__.'/auth.php';

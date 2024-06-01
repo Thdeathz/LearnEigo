@@ -5,18 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
 use App\Models\Tag;
+use App\Models\Card;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class TagController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
         $tagAll = DB::table('tags') -> where('user_id', '=', Auth::id()) -> get();
-        dd($tagAll);
+        return Inertia::render('User/Tag/TagIndex', ['tags' => $tagAll]);
     }
 
     /**
@@ -38,9 +42,31 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Tag $tag)
+    public function show(string $id): Response
     {
-        //
+        $tagAll = DB::table('tags') -> where('user_id', '=', Auth::id()) -> get();
+        $cardAll = DB::table('cards') -> where('tag_id', '=', $id) ->get();
+        $examples = [];
+        $notLearn = 0;
+        $learning = 0;
+        $learned = 0;
+        foreach($cardAll as $card) {
+            if($card->status == 0){
+                $notLearn++;
+            }else if($card->status == 1){
+                $learning++;
+            }else if($card->status == 2){
+                $learned++;
+            }
+            array_push($examples, DB::table('examples')
+            ->join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
+            ->join('cards', 'cards.example_id', '=', 'examples.id')
+            ->select('examples.sentence', 'examples.meaning as ex_meaning', 'vocabularies.*', 'cards.status', 'cards.is_favorite')
+            ->where('examples.id', $card->example_id)
+            ->get());
+        }
+        // dd($examples);
+        return Inertia::render('User/Tag/TagDetail', ['tags' => $tagAll, 'cards' => $cardAll, 'examples' => $examples, 'notLearn' => $notLearn, 'learning' => $learning, 'learned' => $learned]);
     }
 
     /**
