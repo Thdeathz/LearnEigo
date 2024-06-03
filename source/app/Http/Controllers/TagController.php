@@ -20,7 +20,15 @@ class TagController extends Controller
     public function index(): Response
     {
         $tagAll = DB::table('tags') -> where('user_id', '=', Auth::id()) -> get();
-        return Inertia::render('User/Tag/TagIndex', ['tags' => $tagAll]);
+        $data = [];
+        foreach($tagAll as $tag){
+            $response = $this->show($tag->id);
+            $responseData = $response->getData(true);
+            array_push($data, $responseData);
+        }
+        // $example = $data[0]['examples'];
+        // dd($example);
+        return Inertia::render('User/Tag/TagIndex', ['tags' => $tagAll, 'data' => $data]);
     }
 
     /**
@@ -42,7 +50,7 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id): Response
+    public function show(string $id)
     {
         $tagAll = DB::table('tags') -> where('user_id', '=', Auth::id()) -> get();
         $cardAll = DB::table('cards') -> where('tag_id', '=', $id) ->get();
@@ -66,7 +74,15 @@ class TagController extends Controller
             ->get());
         }
         // dd($examples);
-        return Inertia::render('User/Tag/TagDetail', ['tags' => $tagAll, 'cards' => $cardAll, 'examples' => $examples, 'notLearn' => $notLearn, 'learning' => $learning, 'learned' => $learned]);
+        // return Inertia::render('User/Tag/TagDetail', ['tags' => $tagAll, 'cards' => $cardAll, 'examples' => $examples, 'notLearn' => $notLearn, 'learning' => $learning, 'learned' => $learned]);
+        return response()->json([
+            'tags' => $tagAll,
+            'cards' => $cardAll,
+            'examples' => $examples,
+            'notLearn' => $notLearn,
+            'learning' => $learning,
+            'learned' => $learned
+        ]);
     }
 
     /**
