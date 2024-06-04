@@ -124,7 +124,7 @@ export default defineComponent({
         <a-menu-item key="3">
           <IdcardFilled />
           <span>
-            <a>FlashCard</a>
+            <a :href="route('flashcard.index')">FlashCard</a>
           </span>
         </a-menu-item>
         <a-menu-item key="4">
