@@ -15,19 +15,7 @@ class CardController extends Controller
      */
     public function index()
     {
-        $tagAll = DB::table('tags') -> where('user_id', '=', Auth::id()) -> get();
-        $cardAll = collect();
-        foreach ($tagAll as $tag) {
-            $cards = DB::table('cards') -> join('examples', 'examples.id', '=', 'cards.example_id')
-                                                    -> join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
-                                                    -> where('cards.tag_id', '=', $tag->id)
-                                                    -> where('cards.status', '!=', 2)
-                                                    -> get();
-            $cardAll = $cardAll->merge($cards);
-        }
-        $randomCards = $cardAll->count() >= 10 ? $cardAll->random(10) : $cardAll;
-        // dd($randomCards);
-        return Inertia::render('User/FlashCard/FlashCardIndex', ['tagAll' => $tagAll, 'randomCards' => $randomCards]);
+        //
     }
 
     /**

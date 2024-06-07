@@ -38,7 +38,7 @@ function flipCard() {
                     Học
                 </span>
               </Button>
-              <Button>
+              <Button :href="route('flashcard.test')">
                 <PieChartFilled />
                 <span>
                     Kiểm tra
