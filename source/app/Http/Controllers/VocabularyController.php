@@ -7,6 +7,8 @@ use App\Http\Requests\UpdateVocabularyRequest;
 use Illuminate\Http\Request;
 use App\Models\Vocabulary;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class VocabularyController extends Controller
 {
@@ -66,10 +68,11 @@ class VocabularyController extends Controller
         //
     }
 
-    public function search(Request $request)
+    public function search()
     {
-        $vocabularySearch = $request->input('name')->upper();
-        $vocabulary = DB::table('vocabularies') -> where('name', '=', $vocabularySearch) ->get();
-        dd($vocabulary);
+        // $vocabularySearch = $request->input('name')->upper();
+        // $vocabulary = DB::table('vocabularies') -> where('name', '=', $vocabularySearch) ->get();
+        // dd($vocabulary);
+        return Inertia::render('User/Vocabulary/Search');
     }
 }

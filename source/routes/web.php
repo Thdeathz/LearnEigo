@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\FlashCardController;
+use App\Http\Controllers\VocabularyController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,5 +33,7 @@ Route::get('/tags/{id}', [TagController::class, 'show'])->name('tags.show');
 
 Route::get('/flashcard', [FlashCardController::class, 'index'])->name('flashcard.index');
 Route::get('/flashcard/test', [FlashCardController::class, 'getCardLearned'])->name('flashcard.test');
+
+Route::get('/search', [VocabularyController::class, 'search'])->name('vocabulary.search');
 
 require __DIR__.'/auth.php';
