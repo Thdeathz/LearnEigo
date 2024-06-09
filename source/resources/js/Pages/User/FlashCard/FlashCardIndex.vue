@@ -1,8 +1,8 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { Button, Space, Card, Carousel, Divider } from 'ant-design-vue';
+import { ref, watch, h, reactive, toRaw } from 'vue';
+import { Button, Space, Card, Carousel, Divider, CardGrid } from 'ant-design-vue';
 import {CreditCardFilled, SnippetsFilled, PieChartFilled,
         BulbOutlined, SoundOutlined, CaretLeftFilled,
         CaretRightFilled, CloseCircleFilled, CheckCircleFilled,
@@ -32,7 +32,7 @@ function flipCard() {
                     Thẻ ghi nhớ
                 </span>
               </Button>
-              <Button>
+              <Button :href="route('flashcard.learn')">
                 <SnippetsFilled />
                 <span>
                     Học
@@ -60,7 +60,7 @@ function flipCard() {
                       <CaretRightFilled />
                     </div>
                   </template>
-             
+
                   <div class="card-content" v-for="randomCard in randomCards" :key="randomCard.id" @click="flipCard">
                         <Card v-show="!isToggle" class="custom-shadow">
                             <div class="top-left">
@@ -113,6 +113,41 @@ function flipCard() {
                 </div>
             </div>
         </div>
+        <Divider style="height: 1px; background-color: #665A5A" />
+        <div class="center-container2" style="width: 100%;">
+            <div style="width: 100%;">
+                <Card title="Các từ vựng" style="font-size: 18px;">
+                    <div class="right-align">
+                      <Space>
+                        <Button style="background-color: #d9d9d9; display: flex; align-items: center;" :icon="h(SearchOutlined)">Tìm kiếm từ</Button>
+                        <Button style="background-color: #d9d9d9; align-items: center;" :icon="h(FilterOutlined)"></Button>
+                      </Space>
+                    </div>
+                    <br/>
+                    <div style="padding-bottom: 16px;">
+                        <Card class="custom-shadow2" v-for="randomCard in randomCards" :key="randomCard.id">
+                            <CardGrid style="width: 10%; text-align: left" :hoverable="false">
+                                {{ randomCard.name }}
+                            </CardGrid>
+                            <CardGrid style="width: 80%; text-align: left" :hoverable="false">
+                                {{ randomCard.sentence }}
+                            </CardGrid>
+                            <CardGrid style="width: 10%; text-align: center" :hoverable="false">
+                                <Space>
+                                    <a>
+                                        <StarFilled :style="{color: randomCard.is_favorite === 1 ? 'yellow' : 'black'}" style="font-size: 24px;"></StarFilled>
+                                    </a>
+                                    <a>
+                                        <SoundFilled style="font-size: 24px;"></SoundFilled>
+                                    </a>
+                                </Space>
+                            </CardGrid>
+                        </Card>
+                        <br />
+                    </div>
+                </Card>
+            </div>
+        </div>
     </AuthenticatedLayout>
   </template>
 
@@ -126,6 +161,17 @@ function flipCard() {
   height: 100%;           /* Chiếm toàn bộ chiều cao của thẻ cha */
 }
 
+.center-container2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-align {
+    display: flex;
+    align-items: right;
+}
+
 .check-icon-center {
   display: flex;
   justify-content: center;
@@ -136,7 +182,7 @@ function flipCard() {
   box-shadow: 0 5px 10px 5px rgba(255, 255, 255, 0.1);
   width: 100%;
   min-height: 400px;  /* Đặt chiều cao tối thiểu */
-  padding: 20px; 
+  padding: 20px;
   display: flex;        /* Kích hoạt Flexbox */
   flex-direction: column; /* Sắp xếp theo chiều dọc */
   justify-content: center; /* Căn giữa theo chiều dọc */
@@ -144,6 +190,10 @@ function flipCard() {
   position: relative;     /* Để sử dụng absolute positioning cho các phần tử con */
   border-radius: 30px;
   background-color: #dadada;
+}
+
+.custom-shadow2 {
+  box-shadow: 0 5px 10px 5px rgba(0, 0, 0, 0.1);
 }
 
 .top-left {
@@ -165,11 +215,11 @@ function flipCard() {
 .flashcard {
   border: 1px solid black;
   cursor: pointer;
-  
+
 }
 
 .card-container {
-  width: 60%;  
+  width: 60%;
   margin: 0 auto; /* Giữ khung flashcard ở giữa */
 }
 
@@ -178,7 +228,7 @@ function flipCard() {
   flex-direction: column; /* Stack content vertically */
   align-items: center;   /* Center items horizontally */
   justify-content: center; /* Center items vertically */
-  height: 100%; 
+  height: 100%;
 }
 
 .vocabulary-text {
@@ -213,4 +263,4 @@ function flipCard() {
 }
 
 
-</style>    
+</style>
