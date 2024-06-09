@@ -2,7 +2,7 @@
   <AuthenticatedLayout>
     <div class="search-container">
       <a-input-search
-        v-model="searchQuery"
+        v-model:value="searchQuery"
         placeholder="Search..."
         enter-button
         @search="handleSearch"
@@ -41,10 +41,10 @@
     <a-modal v-model:visible="showModal" title="Thêm ghi chú" @ok="handleOk" @cancel="handleCancel">
       <a-form>
         <a-form-item label="Tiêu đề">
-          <a-input v-model="noteTitle" />
+          <a-input v-model:value="noteTitle" />
         </a-form-item>
         <a-form-item label="Nội dung">
-          <a-textarea v-model="noteContent" rows="4" />
+          <a-textarea v-model:value="noteContent" rows="4" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -56,22 +56,18 @@ import { ref } from 'vue';
 import { Input, Button, Divider, Modal, Form, FormItem, Input as AntInput, Textarea } from 'ant-design-vue';
 import { SoundOutlined, StarOutlined } from '@ant-design/icons-vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { Inertia } from '@inertiajs/inertia';
 
 const searchQuery = ref('');
 const showResults = ref(false);
-const meaning = ref('Người bạn');
-const examples = ref([
-  { en: 'She used to spend hours chatting on the phone to her best friend.', vn: 'Cô ấy đã từng dành thời gian nói chuyện với bạn thân trên điện thoại.' },
-  { en: 'Often it has been simply a gesture of tact towards the feelings, however bigoted, of others, whether friends, family or colleagues.', vn: 'Thông thường, đó chỉ đơn giản là một cử chỉ tế nhị đối với cảm xúc của người khác, dù là bạn bè, gia đình hay đồng nghiệp.' }
-]);
 
 const showModal = ref(false);
 const noteTitle = ref('');
 const noteContent = ref('');
 
 function handleSearch() {
-  showResults.value = true;
+  Inertia.visit(`/search/${searchQuery.value}`);
 }
 
 function handleOk() {
@@ -93,7 +89,7 @@ function handleCancel() {
 
 .search-bar {
   width: 100%;
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
   border-radius: 40px; /* Bo tròn góc */
 }
