@@ -32,8 +32,12 @@ Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
 Route::get('/tags/{id}', [TagController::class, 'show'])->name('tags.show');
 
 Route::get('/flashcard', [FlashCardController::class, 'index'])->name('flashcard.index');
-Route::get('/flashcard/test', [FlashCardController::class, 'getCardLearned'])->name('flashcard.test');
+Route::get('/flashcard/learn', [FlashCardController::class, 'viewLearnFlashCard'])->name('flashcard.learn');
+Route::get('/flashcard/test', [FlashCardController::class, 'viewTest'])->name('flashcard.test');
 
-Route::get('/search', [VocabularyController::class, 'search'])->name('vocabulary.search');
+Route::get('/search', [VocabularyController::class, 'searchIndex'])->name('vocabulary.search');
+Route::get('/search/{vocab}', [VocabularyController::class, 'searchDetail'])->name('vocabulary.searchDetail');
+
+Route::post('/vocabulary/add', [VocabularyController::class, 'store'])->name('vocabulary.add');
 
 require __DIR__.'/auth.php';
