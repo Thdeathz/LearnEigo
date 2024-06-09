@@ -1,7 +1,8 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
-import { ref, watch, h } from 'vue';
+import { ref, watch, h, reactive, toRaw } from 'vue';
+import { Inertia } from '@inertiajs/inertia';
 import { Tabs, TabPane, Card, CardGrid, Button, Space } from 'ant-design-vue';
 import { IdcardFilled, PlusSquareOutlined, SearchOutlined, FilterOutlined, StarFilled, SoundFilled, RiseOutlined, CheckOutlined } from '@ant-design/icons-vue';
 
@@ -13,23 +14,49 @@ const notLearn = ref(props.notLearn);
 const learning = ref(props.learning);
 const learned = ref(props.learned);
 
-const panes = ref(tags.value.filter(tag => tag.status === 1).map((tag, index) => ({
-  title: `${tag.title}`,
-  content: `${tag.description}`,
-  key: `${index + 1}`,
-  closable: true,
-})));
+const formRef = ref();
+const newVocab = ref('');
+const newMeaning = ref('');
+const newExample = ref('');
+const newExampleMeaning = ref('');
 
-watch(tags, (newTags) => {
-  panes.value = newTags.filter(tag => tag.status === 1).map((tag, index) => ({
+const panes = ref([
+  {
+    title: 'Tab 3',
+    content: 'Content of Tab 3',
+    id: '0',
+    key: '0',
+    closable: false,
+  },
+  ...tags.value.filter(tag => tag.status === 1).map((tag, index) => ({
+    id: `${tag.id}`,
     title: `${tag.title}`,
     content: `${tag.description}`,
     key: `${index + 1}`,
     closable: true,
-  }));
+  }))
+]);
+
+watch(tags, (newTags) => {
+  panes.value = [
+    {
+      title: 'Tổng quan',
+      content: 'Content of Tab 3',
+      id: '0',
+      key: '0',
+      closable: false,
+    },
+    ...newTags.filter(tag => tag.status === 1).map((tag, index) => ({
+      id: `${tag.id}`,
+      title: `${tag.title}`,
+      content: `${tag.description}`,
+      key: `${index + 1}`,
+      closable: true,
+    }))
+  ];
 }, { immediate: true });
 
-const activeKey = ref(panes.value.length ? panes.value[0].key : '1');
+const activeKey = ref(props.id);
 const newTabIndex = ref(panes.value.length);
 
 const add = () => {
@@ -67,70 +94,113 @@ const onEdit = (targetKey, action) => {
     remove(targetKey);
   }
 };
+
+function handleTabClick(id, event) {
+  if(id === '0'){
+    Inertia.visit(`/tags`);
+  }else{
+    Inertia.visit(`/tags/${id}`);
+  }
+}
+
+const open = ref(false);
+const showModal = () => {
+  open.value = true;
+};
+
+const formState = reactive({
+    tagid: activeKey,
+    newVocab: newVocab,
+    newMeaning: newMeaning,
+    newExample: newExample,
+    newExampleMeaning: newExampleMeaning
+  });
+
+const handleOk = () => {
+    Inertia.post(route('vocabulary.add'), toRaw(formState));
+    open.value = false;
+};
+
 </script>
 
 <template>
     <Head title="Ghi chú" />
 
     <AuthenticatedLayout >
-        <Tabs v-model:activeKey="activeKey" type="editable-card" @edit="onEdit">
-          <TabPane v-for="pane in panes" :key="pane.key" :tab="pane.title" :closable="pane.closable">
-            <Card title="Mô tả">
-                <CardGrid class="card-grid-left" style="width: 75%;" :hoverable="false">
-                    <p>{{ pane.content }}</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <Space align="start" style="display: flex; align-items: center;">
-                            <RiseOutlined style="color: red; font-size: 24px;"></RiseOutlined>
-                            <span>
-                                <span>Đang học </span>{{ learning }}<span> từ</span>
-                            </span>
-                        </Space>
-                        <Space align="end" style="display: flex; align-items: center;">
-                            <CheckOutlined style="color: green; font-size: 24px;"></CheckOutlined>
-                            <span>
-                                <span>Đã học </span>{{ learned }}<span> từ</span>
-                            </span>
-                        </Space>
-                    </div>
-                </CardGrid>
-                <CardGrid style="width: 25%; text-align: center" :hoverable="false">
-                    <Space>
-                        <Button size="large" style="font-size: 18px; display: flex; align-items: center;" type="primary" :icon="h(IdcardFilled)">FlashCard</Button>
-                        <Button size="large" style="font-size: 18px; display: flex; align-items: center;" type="primary" :icon="h(PlusSquareOutlined)">Thêm từ</Button>
-                    </Space>
-
-                </CardGrid>
-            </Card>
-            <Card title="Các từ vựng" style="font-size: 18px;">
-                <div class="right-align">
-                  <Space>
-                    <Button style="background-color: #d9d9d9; display: flex; align-items: center;" :icon="h(SearchOutlined)">Tìm kiếm từ</Button>
-                    <Button style="background-color: #d9d9d9; align-items: center;" :icon="h(FilterOutlined)"></Button>
-                  </Space>
-                </div>
-                <br/>
-                <div>
-                    <Card class="custom-shadow" v-for="example in examples" :key="example.id">
-                        <CardGrid style="width: 10%; text-align: left" :hoverable="false">
-                            {{ example[0].name }}
-                        </CardGrid>
-                        <CardGrid style="width: 80%; text-align: left" :hoverable="false">
-                            {{ example[0].sentence }}
-                        </CardGrid>
-                        <CardGrid style="width: 10%; text-align: center" :hoverable="false">
-                            <Space>
-                                <a>
-                                    <StarFilled :style="{color: example[0].is_favorite === 1 ? 'yellow' : 'black'}" style="font-size: 24px;"></StarFilled>
-                                </a>
-                                <a>
-                                    <SoundFilled style="font-size: 24px;"></SoundFilled>
-                                </a>
+        <Tabs @tabClick="handleTabClick" @change="handleTabClick" v-model:activeKey="activeKey" type="editable-card" @edit="onEdit">
+          <TabPane v-for="pane in panes" :id="pane.id" :key="pane.key" :tab="pane.title" :closable="pane.closable">
+                <Card title="Mô tả">
+                    <CardGrid class="card-grid-left" style="width: 70%;" :hoverable="false">
+                        <p>{{ pane.content }}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <Space align="start" style="display: flex; align-items: center;">
+                                <RiseOutlined style="color: red; font-size: 24px;"></RiseOutlined>
+                                <span>
+                                    <span>Đang học </span>{{ learning }}<span> từ</span>
+                                </span>
                             </Space>
-                        </CardGrid>
-                    </Card>
-                    <br />
-                </div>
-            </Card>
+                            <Space align="end" style="display: flex; align-items: center;">
+                                <CheckOutlined style="color: green; font-size: 24px;"></CheckOutlined>
+                                <span>
+                                    <span>Đã học </span>{{ learned }}<span> từ</span>
+                                </span>
+                            </Space>
+                        </div>
+                    </CardGrid>
+                    <CardGrid style="width: 30%; text-align: center" :hoverable="false">
+                        <Space>
+                            <Button size="large" style="font-size: 18px; display: flex; align-items: center;" type="primary" :href="route('flashcard.index')" :icon="h(IdcardFilled)">FlashCard</Button>
+                            <Button @click="showModal" size="large" style="font-size: 18px; display: flex; align-items: center;" type="primary" :icon="h(PlusSquareOutlined)">Thêm từ</Button>
+                            <a-modal v-model:open="open" width="1000px" title="Thêm từ vựng" @ok="handleOk">
+                                <a-form :model="formState" :ref="formRef">
+                                  <a-form-item label="Tù vựng">
+                                    <a-input v-model:value="newVocab" />
+                                  </a-form-item>
+                                  <a-form-item label="Ý nghĩa">
+                                    <a-input v-model:value="newMeaning" />
+                                  </a-form-item>
+                                  <a-form-item label="Ví dụ thực tế (ENGLISH)">
+                                    <a-textarea v-model:value="newExample" rows="4" />
+                                  </a-form-item>
+                                  <a-form-item label="Ví dụ thực tế (VietNamese)">
+                                    <a-textarea v-model:value="newExampleMeaning" rows="4" />
+                                  </a-form-item>
+                                </a-form>
+                            </a-modal>
+                        </Space>
+
+                    </CardGrid>
+                </Card>
+                <Card title="Các từ vựng" style="font-size: 18px;">
+                    <div class="right-align">
+                      <Space>
+                        <Button style="background-color: #d9d9d9; display: flex; align-items: center;" :icon="h(SearchOutlined)">Tìm kiếm từ</Button>
+                        <Button style="background-color: #d9d9d9; align-items: center;" :icon="h(FilterOutlined)"></Button>
+                      </Space>
+                    </div>
+                    <br/>
+                    <div>
+                        <Card class="custom-shadow" v-for="example in examples" :key="example.id">
+                            <CardGrid style="width: 10%; text-align: left" :hoverable="false">
+                                {{ example[0].name }}
+                            </CardGrid>
+                            <CardGrid style="width: 80%; text-align: left" :hoverable="false">
+                                {{ example[0].sentence }}
+                            </CardGrid>
+                            <CardGrid style="width: 10%; text-align: center" :hoverable="false">
+                                <Space>
+                                    <a>
+                                        <StarFilled :style="{color: example[0].is_favorite === 1 ? 'yellow' : 'black'}" style="font-size: 24px;"></StarFilled>
+                                    </a>
+                                    <a>
+                                        <SoundFilled style="font-size: 24px;"></SoundFilled>
+                                    </a>
+                                </Space>
+                            </CardGrid>
+                        </Card>
+                        <br />
+                    </div>
+                </Card>
           </TabPane>
         </Tabs>
     </AuthenticatedLayout>

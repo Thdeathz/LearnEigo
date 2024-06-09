@@ -3,22 +3,23 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { ref, watch, h } from 'vue';
 import { Tabs, TabPane, Card, CardGrid, Button, Space } from 'ant-design-vue';
+import { Inertia } from '@inertiajs/inertia';
 import { IdcardFilled, PlusSquareOutlined, SearchOutlined, FilterOutlined, StarFilled, SoundFilled, RiseOutlined, CheckOutlined } from '@ant-design/icons-vue';
 
 const { props } = usePage();
 const tags = ref(props.tags);
-const data = ref(props.data);
-const a = data.value;
-console.log(a[1].examples);
+// const data = ref(props.data);
+// const a = data.value;
+// console.log(a[1].examples);
 var b = [];
 
-for(var i = 0; i < a.length; i++){
-    b[i] = a[0].examples[i];
-    console.log(b[i][0].sentence);
-    console.log(b[i][0].name);
-    console.log(b[i][0].meaning);
-    console.log(b[i][0].ex_meaning);
-}
+// for(var i = 0; i < a.length; i++){
+//     b[i] = a[0].examples[i];
+//     console.log(b[i][0].sentence);
+//     console.log(b[i][0].name);
+//     console.log(b[i][0].meaning);
+//     console.log(b[i][0].ex_meaning);
+// }
 
 const panes = ref([
   {
@@ -28,13 +29,14 @@ const panes = ref([
     closable: false,
   },
   ...tags.value.filter(tag => tag.status === 1).map((tag, index) => ({
+    id: `${tag.id}`,
     title: `${tag.title}`,
     content: `${tag.description}`,
     key: `${index + 1}`,
     closable: true,
-    examples: a[index].examples,
-    learning: a[index].learning,
-    learned: a[index].learned
+    // examples: a[index].examples,
+    // learning: a[index].learning,
+    // learned: a[index].learned
   }))
 ]);
 
@@ -44,18 +46,19 @@ watch(tags, (newTags) => {
   panes.value = [
     {
       title: 'Tổng quan',
-      content: 'Content of Tab 3',
+      content: 'Content tổng quan chưa có',
       key: '0',
       closable: false,
     },
     ...newTags.filter(tag => tag.status === 1).map((tag, index) => ({
+      id: `${tag.id}`,
       title: `${tag.title}`,
       content: `${tag.description}`,
       key: `${index + 1}`,
       closable: true,
-      examples: a[index].examples,
-      learning: a[index].learning,
-      learned: a[index].learned
+    //   examples: a[index].examples,
+    //   learning: a[index].learning,
+    //   learned: a[index].learned
     }))
   ];
 }, { immediate: true });
@@ -98,26 +101,35 @@ const onEdit = (targetKey, action) => {
     remove(targetKey);
   }
 };
+
+function handleTabClick(id, event) {
+  if(id === '0'){
+    Inertia.visit(`/tags`);
+  }else{
+    Inertia.visit(`/tags/${id}`);
+  }
+}
+
 </script>
 
 <template>
     <Head title="Ghi chú" />
 
     <AuthenticatedLayout >
-        <Tabs @tabClick="change" @change="change" v-model:activeKey="activeKey" type="editable-card" @edit="onEdit">
-          <TabPane v-for="pane in panes" :key="pane.key" :tab="pane.title" :closable="pane.closable">
+        <Tabs @tabClick="handleTabClick" v-model:activeKey="activeKey" type="editable-card" @edit="onEdit">
+          <TabPane v-for="pane in panes" :id="pane.id" :key="pane.key" :tab="pane.title" :closable="pane.closable">
             <div v-if="pane.key === '0'">
               <!-- Card Tổng quan -->
               <Card title="Tổng quan">
-                  <CardGrid style="width: 75%; text-align: left" :hoverable="false">
+                  <CardGrid style="width: 100%; text-align: left" :hoverable="false">
                     {{ pane.content }}
                   </CardGrid>
-                  <CardGrid style="width: 25%; text-align: center" :hoverable="false">
+                  <!-- <CardGrid style="width: 25%; text-align: center" :hoverable="false">
                       <Space>
                           <Button type="primary" :icon="h(IdcardFilled)">FlashCard</Button>
                           <Button type="primary" :icon="h(PlusSquareOutlined)">Thêm từ</Button>
                       </Space>
-                  </CardGrid>
+                  </CardGrid> -->
               </Card>
             </div>
             <div v-else>
