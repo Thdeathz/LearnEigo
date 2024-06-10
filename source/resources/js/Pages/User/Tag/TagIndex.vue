@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { ref, watch, h } from 'vue';
-import { Tabs, TabPane, Card, CardGrid, Button, Space } from 'ant-design-vue';
+import { Tabs, TabPane, Card, CardGrid, Button, Space, message } from 'ant-design-vue';
 import { Inertia } from '@inertiajs/inertia';
 import { IdcardFilled, PlusSquareOutlined, SearchOutlined, FilterOutlined, StarFilled, SoundFilled, RiseOutlined, CheckOutlined } from '@ant-design/icons-vue';
 
@@ -117,6 +117,7 @@ const noteContent = ref('');
 function handleOk2() {
     console.log(noteTitle.value);
     Inertia.post(route('tags.store'), {title: noteTitle.value, description: noteContent.value});
+    message.success('Tạo ghi chú mới thành công')
     showModal2.value = false;
   }
   const showModal = () => {

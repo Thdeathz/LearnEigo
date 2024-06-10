@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { ref, watch, h, reactive, toRaw , createVNode} from 'vue';
 import { Inertia } from '@inertiajs/inertia';
-import { Tabs, TabPane, Card, CardGrid, Button, Space, Modal } from 'ant-design-vue';
+import { Tabs, TabPane, Card, CardGrid, Button, Space, Modal, message } from 'ant-design-vue';
 import { IdcardFilled, PlusSquareOutlined, SearchOutlined,
         FilterOutlined, StarFilled, SoundFilled, RiseOutlined,
         CheckOutlined, EditFilled, ExclamationCircleOutlined } from '@ant-design/icons-vue';
@@ -120,6 +120,7 @@ const formState = reactive({
 
 const handleOk = () => {
     Inertia.post(route('vocabulary.add'), toRaw(formState));
+    message.success('Thêm từ vựng thành công');
     open.value = false;
 };
 
@@ -130,6 +131,7 @@ const noteContent = ref((panes.value[activeKey.value]).content);
 function handleOk2() {
     console.log(noteTitle.value);
     Inertia.post(route('tags.update'), {title: noteTitle.value, description: noteContent.value, id: activeKey.value});
+    message.success('Đã cập nhật ghi chú');
     showModal2.value = false;
   }
   const showModal22 = () => {
@@ -142,7 +144,9 @@ const showConfirm = () => {
     icon: createVNode(ExclamationCircleOutlined),
     content: h('div', {style: 'color:red;'}, 'Khi bạn click OK, ghi chú này sẽ bị xoá và không thể hoàn tác. Hãy cân nhắc thật kỹ trước khi click!!', ),
     onOk() {
-        Inertia.post(route('tags.destroy'), {id: activeKey.value});
+        console.log(tags);
+        Inertia.post(route('tags.destroy'), {id: (panes.value[activeKey.value]).id});
+        message.success('Đã xoá ghi chú')
       return new Promise((resolve, reject) => {
         setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
       }).catch(() => console.log('Oops errors!'));
