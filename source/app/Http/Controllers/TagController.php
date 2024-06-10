@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 use Inertia\Response;
+use Illuminate\Support\Facades\Redirect;
 
 class TagController extends Controller
 {
@@ -42,9 +44,17 @@ class TagController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTagRequest $request)
+    public function store(Request $request)
     {
-        //
+        $title = $request->input('title');
+        $description = $request->input('description');
+        DB::table('tags')->insert([
+            'user_id' => Auth::id(),
+            'title' => $title,
+            'description' => $description,
+            'status' => 1
+        ]);
+        return Redirect::back();
     }
 
     /**
@@ -88,16 +98,29 @@ class TagController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTagRequest $request, Tag $tag)
+    public function update(Request $request)
     {
-        //
+        $title = $request->input('title');
+        $description = $request->input('description');
+        $id = $request->input('id');
+        DB::table('tags') -> where('user_id', '=', Auth::id())
+                          -> where('id', '=', $id)
+                          -> update([
+                            'title' => $title,
+                            'description' => $description
+                          ]);
+        return Redirect::back();
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tag $tag)
+    public function destroy(Request $request)
     {
-        //
+        $id = $request->input('id');
+        DB::table('tags') -> where('user_id', '=', Auth::id())
+                          -> where('id', '=', $id)
+                          ->delete();
+        return Redirect::route('tags.index');
     }
 }

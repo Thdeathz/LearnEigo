@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
 Route::get('/tags/{id}', [TagController::class, 'show'])->name('tags.show');
+Route::post('/tags/add', [TagController::class, 'store'])->name('tags.store');
+Route::post('tags/update', [TagController::class, 'update'])->name('tags.update');
+Route::post('tags/delete', [TagController::class, 'destroy'])->name('tags.destroy');
 
 Route::get('/flashcard', [FlashCardController::class, 'index'])->name('flashcard.index');
 Route::get('/flashcard/learn', [FlashCardController::class, 'viewLearnFlashCard'])->name('flashcard.learn');

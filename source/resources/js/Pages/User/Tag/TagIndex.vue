@@ -110,26 +110,47 @@ function handleTabClick(id, event) {
   }
 }
 
+const showModal2 = ref(false);
+const noteTitle = ref('');
+const noteContent = ref('');
+
+function handleOk2() {
+    console.log(noteTitle.value);
+    Inertia.post(route('tags.store'), {title: noteTitle.value, description: noteContent.value});
+    showModal2.value = false;
+  }
+  const showModal = () => {
+    showModal2.value = true;
+  };
 </script>
 
 <template>
     <Head title="Ghi chú" />
 
     <AuthenticatedLayout >
-        <Tabs @tabClick="handleTabClick" v-model:activeKey="activeKey" type="editable-card" @edit="onEdit">
+        <Tabs @tabClick="handleTabClick" v-model:activeKey="activeKey" type="card" @edit="onEdit">
           <TabPane v-for="pane in panes" :id="pane.id" :key="pane.key" :tab="pane.title" :closable="pane.closable">
             <div v-if="pane.key === '0'">
               <!-- Card Tổng quan -->
               <Card title="Tổng quan">
-                  <CardGrid style="width: 100%; text-align: left" :hoverable="false">
+                  <CardGrid style="width: 80%; text-align: left" :hoverable="false">
                     {{ pane.content }}
                   </CardGrid>
-                  <!-- <CardGrid style="width: 25%; text-align: center" :hoverable="false">
+                  <CardGrid style="width: 20%; text-align: center" :hoverable="false">
                       <Space>
-                          <Button type="primary" :icon="h(IdcardFilled)">FlashCard</Button>
-                          <Button type="primary" :icon="h(PlusSquareOutlined)">Thêm từ</Button>
+                          <Button @click="showModal" size="large" style="font-size: 18px;" type="primary" :icon="h(PlusSquareOutlined)">Tạo ghi chú mới </Button>
+                          <a-modal v-model:open="showModal2" title="Ghi chú mới" @ok="handleOk2">
+                              <a-form>
+                                <a-form-item label="Tiêu đề">
+                                  <a-input v-model:value="noteTitle" />
+                                </a-form-item>
+                                <a-form-item label="Mô tả ghi chú">
+                                  <a-textarea v-model:value="noteContent" rows="4" />
+                                </a-form-item>
+                              </a-form>
+                          </a-modal>
                       </Space>
-                  </CardGrid> -->
+                  </CardGrid>
               </Card>
             </div>
             <div v-else>

@@ -1,10 +1,12 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
-import { ref, watch, h, reactive, toRaw } from 'vue';
+import { ref, watch, h, reactive, toRaw , createVNode} from 'vue';
 import { Inertia } from '@inertiajs/inertia';
-import { Tabs, TabPane, Card, CardGrid, Button, Space } from 'ant-design-vue';
-import { IdcardFilled, PlusSquareOutlined, SearchOutlined, FilterOutlined, StarFilled, SoundFilled, RiseOutlined, CheckOutlined } from '@ant-design/icons-vue';
+import { Tabs, TabPane, Card, CardGrid, Button, Space, Modal } from 'ant-design-vue';
+import { IdcardFilled, PlusSquareOutlined, SearchOutlined,
+        FilterOutlined, StarFilled, SoundFilled, RiseOutlined,
+        CheckOutlined, EditFilled, ExclamationCircleOutlined } from '@ant-design/icons-vue';
 
 const { props } = usePage();
 const tags = ref(props.tags);
@@ -121,13 +123,41 @@ const handleOk = () => {
     open.value = false;
 };
 
+const showModal2 = ref(false);
+const noteTitle = ref((panes.value[activeKey.value]).title);
+const noteContent = ref((panes.value[activeKey.value]).content);
+
+function handleOk2() {
+    console.log(noteTitle.value);
+    Inertia.post(route('tags.update'), {title: noteTitle.value, description: noteContent.value, id: activeKey.value});
+    showModal2.value = false;
+  }
+  const showModal22 = () => {
+    showModal2.value = true;
+  };
+
+const showConfirm = () => {
+  Modal.confirm({
+    title: 'Bạn vẫn muốn xoá ghi chú này và toàn bộ nội dung trong đó?',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: h('div', {style: 'color:red;'}, 'Khi bạn click OK, ghi chú này sẽ bị xoá và không thể hoàn tác. Hãy cân nhắc thật kỹ trước khi click!!', ),
+    onOk() {
+        Inertia.post(route('tags.destroy'), {id: activeKey.value});
+      return new Promise((resolve, reject) => {
+        setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
+      }).catch(() => console.log('Oops errors!'));
+    },
+    onCancel() {},
+  });
+};
+
 </script>
 
 <template>
     <Head title="Ghi chú" />
 
     <AuthenticatedLayout >
-        <Tabs @tabClick="handleTabClick" @change="handleTabClick" v-model:activeKey="activeKey" type="editable-card" @edit="onEdit">
+        <Tabs @tabClick="handleTabClick" @change="handleTabClick" v-model:activeKey="activeKey" type="card" @edit="onEdit">
           <TabPane v-for="pane in panes" :id="pane.id" :key="pane.key" :tab="pane.title" :closable="pane.closable">
                 <Card title="Mô tả">
                     <CardGrid class="card-grid-left" style="width: 70%;" :hoverable="false">
@@ -168,7 +198,20 @@ const handleOk = () => {
                                 </a-form>
                             </a-modal>
                         </Space>
-
+                        <Space style="padding-top: 10px;">
+                          <Button @click="showModal22" size="large" style="font-size: 18px;" type="primary" :icon="h(EditFilled)">Sửa ghi chú</Button>
+                          <a-modal v-model:open="showModal2" title="Chỉnh sửa ghi chú" @ok="handleOk2">
+                              <a-form>
+                                <a-form-item label="Tiêu đề">
+                                  <a-input v-model:value="noteTitle" />
+                                </a-form-item>
+                                <a-form-item label="Mô tả ghi chú">
+                                  <a-textarea v-model:value="noteContent" rows="4" />
+                                </a-form-item>
+                              </a-form>
+                          </a-modal>
+                          <Button @click="showConfirm" size="large" style="font-size: 18px; background-color: red; color: aliceblue;">Xoá ghi chú</Button>
+                      </Space>
                     </CardGrid>
                 </Card>
                 <Card title="Các từ vựng" style="font-size: 18px;">
