@@ -1,5 +1,8 @@
 <template>
   <AuthenticatedLayout>
+    <div >
+        <p style="font-style: 24px;">Tìm kiếm từ vựng</p>
+    </div>
     <div class="search-container">
       <a-input-search
         v-model:value="searchQuery"
@@ -8,6 +11,12 @@
         @search="handleSearch"
         class="search-bar"
       />
+      <div class="results-container" v-if="message">
+            <a-button type="primary" class="result-button">
+                Kết quả
+            </a-button>
+            <p>Từ vựng không tồn tại trong thực tế hoặc không tồn tại trong hệ thống.</p>
+        </div>
       <div v-if="showResults" class="results-container">
         <a-button type="primary" class="result-button">
           Kết quả
@@ -56,8 +65,15 @@ import { ref } from 'vue';
 import { Input, Button, Divider, Modal, Form, FormItem, Input as AntInput, Textarea } from 'ant-design-vue';
 import { SoundOutlined, StarOutlined } from '@ant-design/icons-vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
+import {onMounted} from 'vue';
 import { Inertia } from '@inertiajs/inertia';
+
+const {props} = usePage();
+
+const message = ref(props.flash?.message || null);
+
+console.log(message.value)
 
 const searchQuery = ref('');
 const showResults = ref(false);

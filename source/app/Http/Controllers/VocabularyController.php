@@ -115,7 +115,7 @@ class VocabularyController extends Controller
         $vocabularySearch = strtolower($vocab);
         $vocabulary = DB::table('vocabularies') -> where('name', '=', $vocabularySearch) ->get();
         if($vocabulary->isEmpty()){
-            return Inertia::render('User/Vocabulary/Search');
+            return Redirect::back() -> with(['message' => 'SearchFailed']);
         }else {
             $examples = DB::table('examples') -> where('vocab_id', '=', $vocabulary[0]->id) -> get();
             return Inertia::render('User/Vocabulary/SearchDetail', ['vocab' => $vocab, 'examples' => $examples, 'vocabulary' => $vocabulary]);
