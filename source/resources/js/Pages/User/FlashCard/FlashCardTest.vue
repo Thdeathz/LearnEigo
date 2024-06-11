@@ -2,8 +2,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { Inertia } from '@inertiajs/inertia';
-import { ref, watch, h, reactive, toRaw } from 'vue';
-import { Button, Space, Card, Carousel, Divider, CardGrid } from 'ant-design-vue';
+import { useTimer, useStopwatch } from "vue-timer-hook";
+import { ref, watch, h, reactive, toRaw, computed, onMounted, watchEffect, defineComponent } from 'vue';
+import { Button, Space, Card, Carousel, Divider, CardGrid, Alert, Modal } from 'ant-design-vue';
 import {CreditCardFilled, SnippetsFilled, PieChartFilled,
         BulbOutlined, SoundOutlined, CaretLeftFilled,
         CaretRightFilled, CloseCircleFilled, CheckCircleFilled,
@@ -16,28 +17,40 @@ const { props } = usePage();
 const historyTests = ref(props.tests);
 const cardAll = ref(props.cardAll);
 const cardAllValue = cardAll.value;
+const tests = ref(props.tests);
 
-console.log(historyTests)
-console.log(cardAll)
-console.log(cardAllValue);
+const info = () => {
+    if((tests.value).length > 0){
+        const messages = tests.value.map((test, index) => h('p', `Lần ${index + 1}: ${test.score}`));
+        Modal.info({
+          title: 'Lịch sử điểm',
+          content: h('div', {}, messages),
+          onOk() {
+            console.log('ok');
+          },
+        });
+    }else{
+        const message = h('p', { style: 'color: red;'}, 'Bạn chưa làm bài kiểm tra nào');
+        Modal.info({
+          title: 'Lịch sử điểm',
+          content: h('div', {}, message),
+          onOk() {
+            console.log('ok');
+          },
+        });
+    }
+};
 
-const open = ref(false);
-const showModal = () => {
-  open.value = true;
-};
-const handleOk = e => {
-  console.log(e);
-  open.value = false;
+const getRandomValues = (arr, num) => {
+  const shuffled = [...arr].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, num);
 };
 
-const open2 = ref(false);
-const showModal2 = () => {
-  open2.value = true;
-};
-const handleOk2 = e => {
-  console.log(e);
-  open2.value = false;
-};
+const value = ref('');
+
+const correctAnswers = ref([]);
+const resultModalVisible = ref(false);
+const results = ref([]);
 
 const value1 = ref(10);
 const focus = () => {
@@ -54,6 +67,112 @@ const focus2 = () => {
 const handleChange2 = value2 => {
   console.log(`selected ${value2}`);
 };
+
+const open = ref(false);
+const showModal = () => {
+  open.value = true;
+};
+const handleOk = e => {
+  console.log(e);
+  open.value = false;
+};
+
+const open2 = ref(false);
+const open3 = ref(false);
+
+const showModal2 = () => {
+  open2.value = true;
+};
+const showModal3 = () => {
+  open3.value = true;
+};
+
+const randomCardAllValues = ref([])
+const answers = ref({});
+
+const getRandomAnswers = (correctAnswer, allAnswers) => {
+  // Lấy 3 đáp án nhiễu ngẫu nhiên
+  const distractors = allAnswers
+    .filter(answer => answer !== correctAnswer)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3);
+
+  // Thêm đáp án đúng vào danh sách
+  const answerOptions = [...distractors, correctAnswer];
+
+  // Trộn các đáp án ngẫu nhiên
+  return answerOptions.sort(() => 0.5 - Math.random());
+};
+
+onMounted(() => {
+  randomCardAllValues.value = cardAll.value.map(card => {
+    const answerOptions = getRandomAnswers(card.meaning, cardAll.value.map(card => card.meaning));
+    return {
+      ...card,
+      options: answerOptions,
+    };
+  });
+});
+
+const handlePick = (value, index) => {
+  answers.value[index] = value;
+};
+
+const handleOk2 = a => {
+    if(value1.value >= cardAllValue.length){
+    randomCardAllValues.value = cardAllValue.map(card => {
+      const answerOptions = getRandomAnswers(card.meaning, cardAllValue.map(card => card.meaning));
+      return {
+        ...card,
+        options: answerOptions,
+      };
+    });
+  } else {
+    const selectedCards = getRandomValues(cardAllValue, value1.value);
+    randomCardAllValues.value = selectedCards.map(card => {
+      const answerOptions = getRandomAnswers(card.meaning, cardAllValue.map(card => card.meaning));
+      return {
+        ...card,
+        options: answerOptions,
+      };
+    });
+  }
+  correctAnswers.value = randomCardAllValues.value.map(card => card.meaning);
+  showModal3();
+  open2.value = false;
+};
+
+const correctCount = ref(0)
+
+const handleOk3 = e => {
+  results.value = randomCardAllValues.value.map((card, index) => {
+    const isCorrect = answers.value[index] === card.meaning;
+    if (isCorrect) (correctCount.value)++;
+    return {
+      question: card.name,
+      selectedAnswer: answers.value[index],
+      correctAnswer: card.meaning,
+      isCorrect: isCorrect,
+    };
+  });
+
+  open3.value = false;
+  resultModalVisible.value = true;
+};
+
+function speak (text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(utterance);
+};
+
+const reload = e => {
+    resultModalVisible.value = false;
+    Inertia.post(route('test.add'), {score: (correctCount.value)*10});
+}
+
+function star(cardId) {
+    Inertia.post(route('card.update'), {cardId: cardId});
+}
 
 </script>
 
@@ -84,19 +203,12 @@ const handleChange2 = value2 => {
         </div>
         <br /><br /><br />
         <div>
-            <Button @click="showModal" style="background-color:blueviolet;">
+            <Button @click="info" style="background-color:blueviolet;">
                 <ClockCircleFilled style="color:blue;" />
                 <span style="color: aliceblue;">
                     Lịch sử điểm
                 </span>
-                <a-modal v-model:open="open" title="Lịch sử điểm" @ok="handleOk">
-                    <div v-if="historyTests.length === 0">
-                        <p style="color: red;">Bạn chưa làm bài kiểm tra nào!!!</p>
-                    </div>
-                    <div v-else>
-                        <p>oke</p>
-                    </div>
-                </a-modal>
+
             </Button>
             <Button @click="showModal2" style="background-color: chocolate;">
                 <DiffFilled style="color:blue;"/>
@@ -140,6 +252,38 @@ const handleChange2 = value2 => {
                         <span style="padding-left: 10px;">Phút</span>
                     </div>
                 </a-modal>
+                <div>
+                  <a-modal
+                    v-model:open="open3"
+                    title="Bài kiểm tra"
+                    width="100%"
+                    height="100%"
+                    okText = "Nộp bài"
+                    cancelText = "Huỷ bài"
+                    wrap-class-name="full-modal"
+                    @ok= "handleOk3">
+                    <div v-for="(randomCardAllValue, index) in randomCardAllValues" :key="index">
+                        <p>Câu hỏi {{ index + 1 }}: Ý nghĩa của {{ randomCardAllValue.name }} là:</p>
+                        <a-radio-group v-model:value="answers[index]" @change="value => handleChange(value, index)" name="radioGroup">
+                            <a-radio v-for="(option, idx) in randomCardAllValue.options" :key="idx" :value="option">{{ option }}</a-radio>
+                        </a-radio-group>
+                    </div>
+                  </a-modal>
+                  <a-modal v-model:visible="resultModalVisible" title="Kết quả bài kiểm tra" @ok="reload">
+                      <div v-for="(result, index) in results" :key="index">
+                        <Alert
+                          :message="'Câu hỏi ' + (index + 1) + ': ' + result.question"
+                          :description="'Bạn đã chọn: ' + result.selectedAnswer + ' | Đáp án đúng: ' + result.correctAnswer"
+                          :type="result.isCorrect ? 'success' : 'error'"
+                          show-icon
+                        />
+                        <br/>
+                      </div>
+                      <div>
+                        <p>Điểm của bạn là {{ correctCount * 10 }}</p>
+                      </div>
+                    </a-modal>
+                </div>
             </Button>
         </div>
         <br /><br /><br /><br />
@@ -164,10 +308,10 @@ const handleChange2 = value2 => {
                             <CardGrid style="width: 10%; text-align: center" :hoverable="false">
                                 <Space>
                                     <a>
-                                        <StarFilled :style="{color: card.is_favorite === 1 ? 'yellow' : 'black'}" style="font-size: 24px;"></StarFilled>
+                                        <StarFilled @click="star(card.id)" :style="{color: card.is_favorite === 1 ? 'yellow' : 'gray'}" style="font-size: 24px;"></StarFilled>
                                     </a>
                                     <a>
-                                        <SoundFilled style="font-size: 24px;"></SoundFilled>
+                                        <SoundFilled @click="speak(card.name)" style="font-size: 24px; color: gray;"></SoundFilled>
                                     </a>
                                 </Space>
                             </CardGrid>
@@ -291,5 +435,22 @@ const handleChange2 = value2 => {
   display: none;
 }
 
+.full-modal {
+  .ant-modal {
+    max-width: 100%;
+    max-height: 100%;
+    top: 0;
+    padding-bottom: 0;
+    margin: 0;
+  }
+  .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh);
+  }
+  .ant-modal-body {
+    flex: 1;
+  }
+}
 
 </style>

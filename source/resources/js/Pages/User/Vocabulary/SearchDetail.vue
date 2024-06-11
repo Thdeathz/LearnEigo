@@ -23,9 +23,9 @@
               <h3 style="font-weight:bold; font-size:20px">Ý nghĩa</h3>
               <p>{{ meaning }}</p>
             </div>
-            <a-button type="primary" class="note-button" @click="showModal1 = true">
+            <!-- <a-button type="primary" class="note-button" @click="showModal1 = true">
               Thêm vào ghi chú
-            </a-button>
+            </a-button> -->
           </div>
           <a-divider />
           <div class="examples-section">
@@ -34,10 +34,6 @@
               <p>{{ example.sentence }}</p>
               <a-divider />
               <p>{{ example.meaning }}</p>
-              <div class="example-actions">
-                <SoundOutlined />
-                <StarOutlined />
-              </div>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { ref, watch, h, reactive, toRaw } from 'vue';
+import { Inertia } from '@inertiajs/inertia';
 import { Button, Space, Card, Carousel, Divider, CardGrid } from 'ant-design-vue';
 import {CreditCardFilled, SnippetsFilled, PieChartFilled,
         BulbOutlined, SoundOutlined, CaretLeftFilled,
@@ -15,6 +16,15 @@ const isToggle = ref(false)
 
 function flipCard() {
   isToggle.value = !isToggle.value
+}
+
+function speak (text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(utterance);
+};
+
+function star(cardId) {
+    Inertia.post(route('card.update'), {cardId: cardId});
 }
 
 </script>
@@ -135,10 +145,10 @@ function flipCard() {
                             <CardGrid style="width: 10%; text-align: center" :hoverable="false">
                                 <Space>
                                     <a>
-                                        <StarFilled :style="{color: randomCard.is_favorite === 1 ? 'yellow' : 'black'}" style="font-size: 24px;"></StarFilled>
+                                        <StarFilled @click="star(randomCard.id)" :style="{color: randomCard.is_favorite === 1 ? 'yellow' : 'gray'}" style="font-size: 24px;"></StarFilled>
                                     </a>
                                     <a>
-                                        <SoundFilled style="font-size: 24px;"></SoundFilled>
+                                        <SoundFilled @click="speak(randomCard.name)" style="font-size: 24px; color: gray;"></SoundFilled>
                                     </a>
                                 </Space>
                             </CardGrid>

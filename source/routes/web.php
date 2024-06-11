@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\FlashCardController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\VocabularyController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -37,10 +38,13 @@ Route::post('tags/delete', [TagController::class, 'destroy'])->name('tags.destro
 Route::get('/flashcard', [FlashCardController::class, 'index'])->name('flashcard.index');
 Route::get('/flashcard/learn', [FlashCardController::class, 'viewLearnFlashCard'])->name('flashcard.learn');
 Route::get('/flashcard/test', [FlashCardController::class, 'viewTest'])->name('flashcard.test');
+Route::post('/test/add', [TestController::class, 'store'])->name('test.add');
 
 Route::get('/search', [VocabularyController::class, 'searchIndex'])->name('vocabulary.search');
 Route::get('/search/{vocab}', [VocabularyController::class, 'searchDetail'])->name('vocabulary.searchDetail');
 
 Route::post('/vocabulary/add', [VocabularyController::class, 'store'])->name('vocabulary.add');
+
+Route::post('/card/update', [CardController::class, 'update'])->name('card.update');
 
 require __DIR__.'/auth.php';
