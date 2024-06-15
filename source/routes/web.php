@@ -46,5 +46,7 @@ Route::get('/search/{vocab}', [VocabularyController::class, 'searchDetail'])->na
 Route::post('/vocabulary/add', [VocabularyController::class, 'store'])->name('vocabulary.add');
 
 Route::post('/card/update', [CardController::class, 'update'])->name('card.update');
+Route::post('/card/updateLearning', [CardController::class, 'updateLearning'])->name('card.updateLearning');
+Route::post('/card/updateLearned', [CardController::class, 'updateLearned'])->name('card.updateLearned');
 
 require __DIR__.'/auth.php';

@@ -78,4 +78,23 @@ class CardController extends Controller
     {
         //
     }
+
+    public function updateLearning(Request $request)
+    {
+            DB::table('cards') -> where('id', '=', $request->cardId)
+                               -> update([
+                                'status' => 1
+                               ]);
+        return Redirect::back();
+    }
+
+    public function updateLearned(Request $request)
+    {
+            DB::table('cards') -> where('id', '=', $request->cardId)
+                               -> update([
+                                'status' => 2
+                               ]);
+        return Redirect::back();
+    }
+
 }

@@ -16,6 +16,12 @@ class FlashCardController extends Controller
      */
     public function index()
     {
+        $allCards = DB::table('cards') -> join('examples', 'examples.id', '=', 'cards.example_id')
+                                        -> join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
+                                        -> join('tags', 'cards.tag_id', '=', 'tags.id')
+                                        -> where('tags.user_id', '=', Auth::id())
+                                        ->select('cards.*', 'examples.sentence as sentence', 'examples.vocab_id as vocab_id', 'vocabularies.name as name', 'vocabularies.meaning as meaning')
+                                        -> get();
         $today = Carbon::now()->toDateString();
         $check = DB::table('practices') -> where('user_id', '=', Auth::id()) -> get();
         if($check->isNotEmpty() && $check[0]->day == $today){
@@ -25,7 +31,7 @@ class FlashCardController extends Controller
                                               -> where('practices.user_id', '=', Auth::id())
                                               ->select('cards.*', 'examples.sentence as sentence', 'examples.vocab_id as vocab_id', 'vocabularies.name as name', 'vocabularies.meaning as meaning')
                                               -> get();
-            return Inertia::render('User/FlashCard/FlashCardIndex', ['randomCards' => $randomCards]);
+            // return Inertia::render('User/FlashCard/FlashCardIndex', ['randomCards' => $randomCards]);
         }
         else if($check->isNotEmpty() && $check[0]->day != $today){
             DB::table('practices') -> where('user_id', '=', Auth::id()) -> delete();
@@ -41,10 +47,10 @@ class FlashCardController extends Controller
                                             -> get();
                 $cardAll = $cardAll->merge($cards);
             }
-            $randomCards = $cardAll->count() >= 10 ? $cardAll->random(10) : $cardAll;
+            $randomCards = count($cardAll) >= 10 ? $cardAll->random(10) : $cardAll;
             // dd($randomCards);
             $this->storeRandomCardToPractice($randomCards, $today);
-            return Inertia::render('User/FlashCard/FlashCardIndex', ['tagAll' => $tagAll, 'randomCards' => $randomCards]);
+            // return Inertia::render('User/FlashCard/FlashCardIndex', ['tagAll' => $tagAll, 'randomCards' => $randomCards]);
         }
         else {
             $tagAll = DB::table('tags') -> where('user_id', '=', Auth::id()) -> get();
@@ -58,11 +64,12 @@ class FlashCardController extends Controller
                                             -> get();
                 $cardAll = $cardAll->merge($cards);
             }
-            $randomCards = $cardAll->count() >= 10 ? $cardAll->random(10) : $cardAll;
+            $randomCards = count($cardAll) >= 10 ? $cardAll->random(10) : $cardAll;
             // dd($randomCards);
             $this->storeRandomCardToPractice($randomCards, $today);
-            return Inertia::render('User/FlashCard/FlashCardIndex', ['tagAll' => $tagAll, 'randomCards' => $randomCards]);
+            // return Inertia::render('User/FlashCard/FlashCardIndex', ['tagAll' => $tagAll, 'randomCards' => $randomCards]);
         }
+        return Inertia::render('User/FlashCard/FlashCardIndex', ['randomCards' => $allCards]);
     }
 
     public function storeRandomCardToPractice($randomCards, $today) {
@@ -126,12 +133,19 @@ class FlashCardController extends Controller
 
     public function viewLearnFlashCard()
     {
-        $randomCards = DB::table('cards') -> join('examples', 'examples.id', '=', 'cards.example_id')
-                                              -> join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
-                                              -> join('practices', 'practices.card_id', '=', 'cards.id')
-                                              -> where('practices.user_id', '=', Auth::id())
-                                              ->select('cards.*', 'examples.sentence as sentence', 'examples.vocab_id as vocab_id', 'vocabularies.name as name', 'vocabularies.meaning as meaning')
-                                              -> get();
+        $allCards = DB::table('cards') -> join('examples', 'examples.id', '=', 'cards.example_id')
+                                        -> join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
+                                        -> join('tags', 'cards.tag_id', '=', 'tags.id')
+                                        -> where('tags.user_id', '=', Auth::id())
+                                        ->select('cards.*', 'examples.sentence as sentence', 'examples.vocab_id as vocab_id', 'vocabularies.name as name', 'vocabularies.meaning as meaning')
+                                        -> get();
+        // $randomCards = DB::table('cards') -> join('examples', 'examples.id', '=', 'cards.example_id')
+        //                                       -> join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
+        //                                       -> join('practices', 'practices.card_id', '=', 'cards.id')
+        //                                       -> where('practices.user_id', '=', Auth::id())
+        //                                       ->select('cards.*', 'examples.sentence as sentence', 'examples.vocab_id as vocab_id', 'vocabularies.name as name', 'vocabularies.meaning as meaning')
+        //                                       -> get();
+        $randomCards = count($allCards) > 10 ? $allCards ->random(10) : $allCards;
             return Inertia::render('User/FlashCard/FlashCardLearn', ['randomCards' => $randomCards]);
     }
 

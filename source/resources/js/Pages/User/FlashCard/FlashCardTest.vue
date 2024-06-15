@@ -160,6 +160,10 @@ const handleOk3 = e => {
   resultModalVisible.value = true;
 };
 
+const handleOk4 = e => {
+    open3.value = false;
+}
+
 function speak (text) {
   const utterance = new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(utterance);
@@ -252,7 +256,20 @@ function star(cardId) {
                         <span style="padding-left: 10px;">Phút</span>
                     </div>
                 </a-modal>
-                <div>
+                <div v-if="cardAllValue.length == 0">
+                    <a-modal
+                    v-model:open="open3"
+                    title="Bài kiểm tra"
+                    width="100%"
+                    height="100%"
+                    wrap-class-name="full-modal"
+                    @ok= "handleOk4">
+                    <div>
+                        <p>Bạn chưa học thuộc từ vựng nào nên không thể tạo bài kiểm tra</p>
+                    </div>
+                  </a-modal>
+                </div>
+                <div v-else>
                   <a-modal
                     v-model:open="open3"
                     title="Bài kiểm tra"

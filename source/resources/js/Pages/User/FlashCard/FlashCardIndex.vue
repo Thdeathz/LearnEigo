@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { ref, watch, h, reactive, toRaw } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
-import { Button, Space, Card, Carousel, Divider, CardGrid } from 'ant-design-vue';
+import { Button, Space, Card, Carousel, Divider, CardGrid, message } from 'ant-design-vue';
 import {CreditCardFilled, SnippetsFilled, PieChartFilled,
         BulbOutlined, SoundOutlined, CaretLeftFilled,
         CaretRightFilled, CloseCircleFilled, CheckCircleFilled,
@@ -25,6 +25,16 @@ function speak (text) {
 
 function star(cardId) {
     Inertia.post(route('card.update'), {cardId: cardId});
+}
+
+function updateLearning(cardId) {
+    Inertia.post(route('card.updateLearning'), {cardId: cardId});
+    message.success('Cập nhật trạng thái từ vựng sang đang học thành công');
+}
+
+function updateLearned(cardId) {
+    Inertia.post(route('card.updateLearned'), {cardId: cardId});
+    message.success('Cập nhật trạng thái từ vựng sang đã học thành công');
 }
 
 </script>
@@ -71,8 +81,8 @@ function star(cardId) {
                     </div>
                   </template>
 
-                  <div class="card-content" v-for="randomCard in randomCards" :key="randomCard.id" @click="flipCard">
-                        <Card v-show="!isToggle" class="custom-shadow">
+                  <div class="card-content" v-for="randomCard in randomCards" :key="randomCard.id" >
+                        <Card v-show="!isToggle" class="custom-shadow" @click="flipCard">
                             <div class="top-left">
                                 <BulbOutlined style="font-size: 24px;"/>
                                 <span>
@@ -86,7 +96,7 @@ function star(cardId) {
                                 <p class="vocabulary-text">{{ randomCard.name }}</p>
                             </div>
                         </Card>
-                        <Card v-show="isToggle" class="custom-shadow">
+                        <Card v-show="isToggle" class="custom-shadow" @click="flipCard">
                             <div class="top-left">
                                 <BulbOutlined style="font-size: 24px; color: yellow;"/>
                                 <span>
@@ -105,24 +115,25 @@ function star(cardId) {
                                 </div>
                             </div>
                         </Card>
-                    </div>
-                </Carousel>
-            </div>
-        <br /><br />
-        <div class="check-icon-center">
+                        <div class="check-icon-center">
             <div class="check-icon">
-                <div style="width: 60%;">
+                <div style="width: 60%; margin-bottom: 100px;">
                     <Space style="display: flex; justify-content: space-between; width: 100%;" direction="horizontal">
                         <a>
-                            <CloseCircleFilled style="font-size: 36px; color: red;" />
+                            <CloseCircleFilled @click="updateLearning(randomCard.id)" style="font-size: 36px; color: red;" />
                         </a>
                         <a>
-                            <CheckCircleFilled style="font-size: 36px; color: green;" />
+                            <CheckCircleFilled @click="updateLearned(randomCard.id)" style="font-size: 36px; color: green;" />
                         </a>
                     </Space>
                 </div>
             </div>
         </div>
+                    </div>
+                </Carousel>
+            </div>
+        <br /><br />
+
         <Divider style="height: 1px; background-color: #665A5A" />
         <div class="center-container2" style="width: 100%;">
             <div style="width: 100%;">
