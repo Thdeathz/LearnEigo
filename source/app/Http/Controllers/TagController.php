@@ -60,10 +60,37 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
         $tagAll = DB::table('tags') -> where('user_id', '=', Auth::id()) -> get();
         $cardAll = DB::table('cards') -> where('tag_id', '=', $id) ->get();
+        $examples = [];
+        $notLearn = 0;
+        $learning = 0;
+        $learned = 0;
+        foreach($cardAll as $card) {
+            if($card->status == 0){
+                $learning++;
+            }else if($card->status == 1){
+                $learning++;
+            }else if($card->status == 2){
+                $learned++;
+            }
+            array_push($examples, DB::table('examples')
+            ->join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
+            ->join('cards', 'cards.example_id', '=', 'examples.id')
+            ->select('examples.sentence', 'examples.meaning as ex_meaning', 'vocabularies.*', 'cards.status', 'cards.is_favorite')
+            ->where('examples.id', $card->example_id)
+            ->get());
+        }
+        // dd($examples);
+        return Inertia::render('User/Tag/TagDetail', ['tags' => $tagAll, 'cards' => $cardAll, 'examples' => $examples, 'notLearn' => $notLearn, 'learning' => $learning, 'learned' => $learned, 'id' => $id]);
+    }
+
+    public function show2($id, $id2)
+    {
+        $tagAll = DB::table('tags') -> where('user_id', '=', Auth::id()) -> get();
+        $cardAll = DB::table('cards') -> where('tag_id', '=', $id2) ->get();
         $examples = [];
         $notLearn = 0;
         $learning = 0;
@@ -118,6 +145,10 @@ class TagController extends Controller
     public function destroy(Request $request)
     {
         $id = $request->input('id');
+
+        DB::table('cards') -> where('tag_id', '=', $id)
+                          ->delete();
+
         DB::table('tags') -> where('user_id', '=', Auth::id())
                           -> where('id', '=', $id)
                           ->delete();

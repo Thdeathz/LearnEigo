@@ -102,11 +102,13 @@ const onEdit = (targetKey, action) => {
   }
 };
 
-function handleTabClick(id, event) {
+function handleTabClick(id) {
   if(id === '0'){
     Inertia.visit(`/tags`);
   }else{
-    Inertia.visit(`/tags/${id}`);
+    console.log(((panes.value)[id]).id)
+    const id2 = ((panes.value)[id]).id
+    Inertia.visit(`/tags/${id}/${id2}`);
   }
 }
 
