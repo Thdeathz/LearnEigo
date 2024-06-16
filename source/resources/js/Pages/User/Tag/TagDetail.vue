@@ -109,9 +109,10 @@ const open = ref(false);
 const showModal = () => {
   open.value = true;
 };
-
+const currentTag = (tags.value)[activeKey.value - 1]
+const tagId = currentTag.id;
 const formState = reactive({
-    tagid: activeKey,
+    tagid: tagId,
     newVocab: newVocab,
     newMeaning: newMeaning,
     newExample: newExample,

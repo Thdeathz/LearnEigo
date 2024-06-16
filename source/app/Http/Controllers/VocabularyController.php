@@ -37,6 +37,7 @@ class VocabularyController extends Controller
         // Add Vocabulary
         $dataTagId = $request->input('tagid');
         $valueTagId = $dataTagId['_value'];
+        dd($valueTagId);
         $dataVocab = $request->input('newVocab');
         $valueVocab = $dataVocab['_value'];
         $vocab = strtolower($valueVocab);
