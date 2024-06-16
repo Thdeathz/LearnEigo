@@ -101,7 +101,9 @@ function handleTabClick(id, event) {
   if(id === '0'){
     Inertia.visit(`/tags`);
   }else{
-    Inertia.visit(`/tags/${id}`);
+    console.log(((panes.value)[id]).id)
+    const id2 = ((panes.value)[id]).id
+    Inertia.visit(`/tags/${id}/${id2}`);
   }
 }
 
@@ -109,9 +111,10 @@ const open = ref(false);
 const showModal = () => {
   open.value = true;
 };
-
+const currentTag = (tags.value)[activeKey.value - 1]
+const tagId = currentTag.id;
 const formState = reactive({
-    tagid: activeKey,
+    tagid: tagId,
     newVocab: newVocab,
     newMeaning: newMeaning,
     newExample: newExample,
@@ -130,7 +133,7 @@ const noteContent = ref((panes.value[activeKey.value]).content);
 
 function handleOk2() {
     console.log(noteTitle.value);
-    Inertia.post(route('tags.update'), {title: noteTitle.value, description: noteContent.value, id: activeKey.value});
+    Inertia.post(route('tags.update'), {title: noteTitle.value, description: noteContent.value, id: tagId});
     message.success('Đã cập nhật ghi chú');
     showModal2.value = false;
   }

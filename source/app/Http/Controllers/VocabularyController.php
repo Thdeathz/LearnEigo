@@ -36,11 +36,10 @@ class VocabularyController extends Controller
     {
         // Add Vocabulary
         $dataTagId = $request->input('tagid');
-        $valueTagId = $dataTagId['_value'];
         $dataVocab = $request->input('newVocab');
         $valueVocab = $dataVocab['_value'];
         $vocab = strtolower($valueVocab);
-        if((DB::table('vocabularies') -> where('name', '=', $vocab) -> get())->isEmpty()){
+        // if((DB::table('vocabularies') -> where('name', '=', $vocab) -> get())->isEmpty()){
             $dataMeaning = $request->input('newMeaning');
             $valueMeaning = $dataMeaning['_value'];
             $id = DB::table('vocabularies') -> insertGetId([
@@ -61,16 +60,16 @@ class VocabularyController extends Controller
 
             //Add Card
             DB::table('cards') -> insert([
-                'tag_id' => $valueTagId,
+                'tag_id' =>  $dataTagId,
                 'example_id' => $idExample,
                 'status' => 0,
                 'is_favorite' => 0
             ]);
 
             return Redirect::back();
-        }else{
-            return Redirect::back();
-        }
+        // }else{
+        //     return Redirect::back();
+        // }
 
     }
 
