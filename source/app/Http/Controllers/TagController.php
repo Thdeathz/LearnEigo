@@ -79,7 +79,7 @@ class TagController extends Controller
             array_push($examples, DB::table('examples')
             ->join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
             ->join('cards', 'cards.example_id', '=', 'examples.id')
-            ->select('examples.sentence', 'examples.meaning as ex_meaning', 'vocabularies.*', 'cards.status', 'cards.is_favorite')
+            ->select('examples.sentence', 'examples.meaning as ex_meaning', 'vocabularies.*', 'cards.status', 'cards.is_favorite', 'examples.id as ex_id')
             ->where('examples.id', $card->example_id)
             ->get());
         }
@@ -106,7 +106,7 @@ class TagController extends Controller
             array_push($examples, DB::table('examples')
             ->join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
             ->join('cards', 'cards.example_id', '=', 'examples.id')
-            ->select('examples.sentence', 'examples.meaning as ex_meaning', 'vocabularies.*', 'cards.status', 'cards.is_favorite')
+            ->select('examples.sentence', 'examples.meaning as ex_meaning', 'vocabularies.*', 'cards.status', 'cards.is_favorite', 'examples.id as ex_id')
             ->where('examples.id', $card->example_id)
             ->get());
         }
@@ -136,6 +136,26 @@ class TagController extends Controller
                             'title' => $title,
                             'description' => $description
                           ]);
+        return Redirect::back();
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function updateVocab(Request $request)
+    {
+        DB::table('vocabularies')
+                          -> where('id', '=', $request->id)
+                          -> update([
+                            'context' => $request->editContext,
+                          ]);
+        DB::table('examples')
+                          -> where('vocab_id', '=', $request->id)
+                          -> update([
+                            'sentence' => $request->editExample,
+                            'meaning' => $request->editExampleMeaning
+                          ]);
+
         return Redirect::back();
     }
 

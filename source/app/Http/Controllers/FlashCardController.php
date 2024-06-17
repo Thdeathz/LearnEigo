@@ -16,11 +16,12 @@ class FlashCardController extends Controller
      */
     public function index()
     {
+        $tags = DB::table('tags') -> where('user_id', '=', Auth::id()) -> get();
         $allCards = DB::table('cards') -> join('examples', 'examples.id', '=', 'cards.example_id')
                                         -> join('vocabularies', 'vocabularies.id', '=', 'examples.vocab_id')
                                         -> join('tags', 'cards.tag_id', '=', 'tags.id')
                                         -> where('tags.user_id', '=', Auth::id())
-                                        ->select('cards.*', 'examples.sentence as sentence', 'examples.vocab_id as vocab_id', 'vocabularies.name as name', 'vocabularies.meaning as meaning')
+                                        ->select('cards.*', 'examples.sentence as sentence', 'examples.vocab_id as vocab_id', 'vocabularies.name as name', 'vocabularies.meaning as meaning', 'tags.title as title')
                                         -> get();
         $today = Carbon::now()->toDateString();
         $check = DB::table('practices') -> where('user_id', '=', Auth::id()) -> get();
@@ -69,7 +70,7 @@ class FlashCardController extends Controller
             $this->storeRandomCardToPractice($randomCards, $today);
             // return Inertia::render('User/FlashCard/FlashCardIndex', ['tagAll' => $tagAll, 'randomCards' => $randomCards]);
         }
-        return Inertia::render('User/FlashCard/FlashCardIndex', ['randomCards' => $allCards]);
+        return Inertia::render('User/FlashCard/FlashCardIndex', ['randomCards' => $allCards, 'tags' => $tags]);
     }
 
     public function storeRandomCardToPractice($randomCards, $today) {

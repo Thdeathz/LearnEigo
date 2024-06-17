@@ -33,6 +33,7 @@ Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
 Route::get('/tags/{id}/{id2}', [TagController::class, 'show2'])->name('tags.show');
 Route::post('/tags/add', [TagController::class, 'store'])->name('tags.store');
 Route::post('tags/update', [TagController::class, 'update'])->name('tags.update');
+Route::post('tags/updateVocab', [TagController::class, 'updateVocab'])->name('tags.updateVocab');
 Route::post('tags/delete', [TagController::class, 'destroy'])->name('tags.destroy');
 
 Route::get('/flashcard', [FlashCardController::class, 'index'])->name('flashcard.index');

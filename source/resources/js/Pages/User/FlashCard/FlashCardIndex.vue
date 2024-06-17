@@ -1,21 +1,43 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
-import { ref, watch, h, reactive, toRaw } from 'vue';
+import { ref, watch, h, reactive, toRaw, computed } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
 import { Button, Space, Card, Carousel, Divider, CardGrid, message } from 'ant-design-vue';
 import {CreditCardFilled, SnippetsFilled, PieChartFilled,
         BulbOutlined, SoundOutlined, CaretLeftFilled,
         CaretRightFilled, CloseCircleFilled, CheckCircleFilled,
-        StarFilled, SoundFilled, SearchOutlined,FilterOutlined} from '@ant-design/icons-vue';
+        StarFilled, SoundFilled, SearchOutlined, FilterOutlined,
+        SwapOutlined} from '@ant-design/icons-vue';
 
 const { props } = usePage();
+const tags = ref(props.tags);
+console.log(tags.value);
 const randomCards = ref(props.randomCards);
-console.log(randomCards);
+console.log((randomCards.value)[9]);
 const isToggle = ref(false)
+const cardsWithTitleX = ref([])
+cardsWithTitleX.value = randomCards.value.filter(card => card.title === ((randomCards.value)[0]).title);
+console.log(((cardsWithTitleX.value)[0]).title);
+
+const initialTitle = computed(() => {
+  return ((randomCards.value)[0]).title;
+});
+
+const selectTitle = title => {
+    cardsWithTitleX.value = randomCards.value.filter(card => card.title === title);
+    console.log(`selected ${title}`);
+}
 
 function flipCard() {
   isToggle.value = !isToggle.value
+}
+
+function swapCard(){
+    for (let i = (cardsWithTitleX.value).length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [(cardsWithTitleX.value)[i], (cardsWithTitleX.value)[j]] = [(cardsWithTitleX.value)[j], (cardsWithTitleX.value)[i]];
+  }
 }
 
 function speak (text) {
@@ -45,25 +67,38 @@ function updateLearned(cardId) {
     <AuthenticatedLayout >
 
         <div>
-            <Space wrap style="display: flex;">
-              <Button type="primary">
-                <CreditCardFilled />
-                <span>
-                    Thẻ ghi nhớ
-                </span>
-              </Button>
-              <Button :href="route('flashcard.learn')">
-                <SnippetsFilled />
-                <span>
-                    Học
-                </span>
-              </Button>
-              <Button :href="route('flashcard.test')">
-                <PieChartFilled />
-                <span>
-                    Kiểm tra
-                </span>
-              </Button>
+            <Space wrap style="display: flex; width: 100%; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <Button type="primary">
+                  <CreditCardFilled />
+                  <span>
+                      Thẻ ghi nhớ
+                  </span>
+                </Button>
+                <!-- <Button :href="route('flashcard.learn')">
+                  <SnippetsFilled />
+                  <span>
+                      Học
+                  </span>
+                </Button> -->
+                <Button :href="route('flashcard.test')">
+                  <PieChartFilled />
+                  <span>
+                      Kiểm tra
+                  </span>
+                </Button>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <a-select
+                  :placeholder="initialTitle"
+                  ref="select"
+                  v-model:value="tags.value"
+                  style="width: 200px;"
+                  @focus=""
+                  @change="selectTitle">
+                  <a-select-option v-for="tag in tags" v-model:value="tag.title" :key="tag.id">{{ tag.title }}</a-select-option>
+                </a-select>
+              </div>
             </Space>
         </div>
         <br /><br /><br /><br /><br /><br /><br />
@@ -81,7 +116,7 @@ function updateLearned(cardId) {
                     </div>
                   </template>
 
-                  <div class="card-content" v-for="randomCard in randomCards" :key="randomCard.id" >
+                  <div class="card-content" v-for="randomCard in cardsWithTitleX" :key="randomCard.id" >
                         <Card v-show="!isToggle" class="custom-shadow" @click="flipCard">
                             <div class="top-left">
                                 <BulbOutlined style="font-size: 24px;"/>
@@ -120,10 +155,19 @@ function updateLearned(cardId) {
                 <div style="width: 60%; margin-bottom: 100px;">
                     <Space style="display: flex; justify-content: space-between; width: 100%;" direction="horizontal">
                         <a>
-                            <CloseCircleFilled @click="updateLearning(randomCard.id)" style="font-size: 36px; color: red;" />
+                            <a-tooltip placement="topLeft" title="Chưa học">
+                                <CloseCircleFilled @click="updateLearning(randomCard.id)" style="font-size: 36px; color: red;" />
+                            </a-tooltip>
+                        </a>
+                        <a style="padding-left: 20px; padding-right: 20px;">
+                            <a-tooltip placement="topLeft" title="Trộn FlashCard">
+                                <SwapOutlined @click="swapCard" style="font-size: 36px; color: black;"/>
+                            </a-tooltip>
                         </a>
                         <a>
-                            <CheckCircleFilled @click="updateLearned(randomCard.id)" style="font-size: 36px; color: green;" />
+                            <a-tooltip placement="topLeft" title="Đã học">
+                                <CheckCircleFilled @click="updateLearned(randomCard.id)" style="font-size: 36px; color: green;" />
+                            </a-tooltip>
                         </a>
                     </Space>
                 </div>
@@ -146,7 +190,7 @@ function updateLearned(cardId) {
                     </div>
                     <br/>
                     <div style="padding-bottom: 16px;">
-                        <Card class="custom-shadow2" v-for="randomCard in randomCards" :key="randomCard.id">
+                        <Card class="custom-shadow2" v-for="randomCard in cardsWithTitleX" :key="randomCard.id">
                             <CardGrid style="width: 10%; text-align: left" :hoverable="false">
                                 {{ randomCard.name }}
                             </CardGrid>
