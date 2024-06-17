@@ -21,8 +21,11 @@ const learned = ref(props.learned);
 const formRef = ref();
 const newVocab = ref('');
 const newMeaning = ref('');
+const newContext = ref('');
 const newExample = ref('');
 const newExampleMeaning = ref('');
+
+const formRef2 = ref();
 
 const panes = ref([
   {
@@ -119,9 +122,32 @@ const formState = reactive({
     tagid: tagId,
     newVocab: newVocab,
     newMeaning: newMeaning,
+    newContext: newContext,
     newExample: newExample,
     newExampleMeaning: newExampleMeaning
   });
+
+  const openVocab = ref(false);
+const formState2 = reactive({
+  id: '',
+  tagid: tagId,
+  editContext: '',
+  editExample: '',
+  editExampleMeaning: ''
+});
+const showModalVocab = (index) => {
+  formState2.id = examples.value[index][0].id;
+  formState2.editContext = examples.value[index][0].context;
+  formState2.editExample = examples.value[index][0].sentence;
+  formState2.editExampleMeaning = examples.value[index][0].ex_meaning;
+  openVocab.value = true;
+};
+  const handleOkVocab = () => {
+    Inertia.post(route('tags.updateVocab'), toRaw(formState2));
+    // message.success('Thêm từ vựng thành công');
+    console.log(formState2)
+    openVocab.value = false;
+};
 
 const handleOk = () => {
     Inertia.post(route('vocabulary.add'), toRaw(formState));
@@ -207,6 +233,9 @@ function star(cardId) {
                                   <a-form-item label="Ý nghĩa">
                                     <a-input v-model:value="newMeaning" />
                                   </a-form-item>
+                                  <a-form-item label="Ngữ cảnh">
+                                    <a-input v-model:value="newContext" />
+                                  </a-form-item>
                                   <a-form-item label="Ví dụ thực tế (ENGLISH)">
                                     <a-textarea v-model:value="newExample" rows="4" />
                                   </a-form-item>
@@ -245,11 +274,27 @@ function star(cardId) {
                             <CardGrid style="width: 10%; text-align: left" :hoverable="false">
                                 {{ example[0].name }}
                             </CardGrid>
-                            <CardGrid style="width: 80%; text-align: left" :hoverable="false">
+                            <CardGrid style="width: 75%; text-align: left" :hoverable="false">
                                 {{ example[0].sentence }}
                             </CardGrid>
-                            <CardGrid style="width: 10%; text-align: center" :hoverable="false">
+                            <CardGrid style="width: 15%; text-align: center" :hoverable="false">
                                 <Space>
+                                    <a>
+                                        <EditFilled @click="showModalVocab(index)" style="font-size: 24px; color: blue;"></EditFilled>
+                                    </a>
+                                    <a-modal v-model:open="openVocab" width="1000px" title="Sửa từ vựng" @ok="handleOkVocab">
+                                        <a-form :model="formState2" :ref="formRef2">
+                                          <a-form-item label="Ngữ cảnh">
+                                            <a-input v-model:value="formState2.editContext" />
+                                          </a-form-item>
+                                          <a-form-item label="Ví dụ thực tế (ENGLISH)">
+                                            <a-textarea v-model:value="formState2.editExample" rows="4" />
+                                          </a-form-item>
+                                          <a-form-item label="Ví dụ thực tế (VietNamese)">
+                                            <a-textarea v-model:value="formState2.editExampleMeaning" rows="4" />
+                                          </a-form-item>
+                                        </a-form>
+                                    </a-modal>
                                     <a>
                                         <StarFilled @click="star((valueCards[index]).id)" :style="{color: example[0].is_favorite === 1 ? 'yellow' : 'black'}" style="font-size: 24px;"></StarFilled>
                                     </a>

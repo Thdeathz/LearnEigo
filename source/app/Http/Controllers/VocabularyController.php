@@ -42,9 +42,12 @@ class VocabularyController extends Controller
         // if((DB::table('vocabularies') -> where('name', '=', $vocab) -> get())->isEmpty()){
             $dataMeaning = $request->input('newMeaning');
             $valueMeaning = $dataMeaning['_value'];
+            $dataContext = $request->input('newContext');
+            $valueContext = $dataContext['_value'];
             $id = DB::table('vocabularies') -> insertGetId([
                 'name' => $vocab,
-                'meaning' => $valueMeaning
+                'meaning' => $valueMeaning,
+                'context' => $valueContext
             ]);
 
             // Add Example

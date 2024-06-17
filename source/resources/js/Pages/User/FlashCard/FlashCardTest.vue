@@ -181,7 +181,7 @@ function star(cardId) {
 </script>
 
 <template>
-    <Head title="Học FlashCard"/>
+    <Head title="Kiểm tra"/>
     <AuthenticatedLayout>
         <div>
             <Space wrap style="display: flex;">
@@ -191,12 +191,12 @@ function star(cardId) {
                     Thẻ ghi nhớ
                 </span>
               </Button>
-              <Button :href="route('flashcard.learn')">
+              <!-- <Button :href="route('flashcard.learn')">
                 <SnippetsFilled />
                 <span>
                     Học
                 </span>
-              </Button>
+              </Button> -->
               <Button type="primary">
                 <PieChartFilled />
                 <span>
@@ -271,6 +271,7 @@ function star(cardId) {
                 </div>
                 <div v-else>
                   <a-modal
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;"
                     v-model:open="open3"
                     title="Bài kiểm tra"
                     width="100%"
@@ -280,10 +281,12 @@ function star(cardId) {
                     wrap-class-name="full-modal"
                     @ok= "handleOk3">
                     <div v-for="(randomCardAllValue, index) in randomCardAllValues" :key="index">
-                        <p>Câu hỏi {{ index + 1 }}: Ý nghĩa của {{ randomCardAllValue.name }} là:</p>
-                        <a-radio-group v-model:value="answers[index]" @change="value => handleChange(value, index)" name="radioGroup">
-                            <a-radio v-for="(option, idx) in randomCardAllValue.options" :key="idx" :value="option">{{ option }}</a-radio>
-                        </a-radio-group>
+                        <div style="margin-bottom: 24px;">
+                            <p>Câu hỏi {{ index + 1 }}: Ý nghĩa của {{ randomCardAllValue.name }} là:</p>
+                            <a-radio-group v-model:value="answers[index]" @change="value => handleChange(value, index)" name="radioGroup">
+                                <a-radio v-for="(option, idx) in randomCardAllValue.options" :key="idx" :value="option">{{ option }}</a-radio>
+                            </a-radio-group>
+                        </div>
                     </div>
                   </a-modal>
                   <a-modal v-model:visible="resultModalVisible" title="Kết quả bài kiểm tra" @ok="reload">
