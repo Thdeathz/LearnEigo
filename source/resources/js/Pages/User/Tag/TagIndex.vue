@@ -46,7 +46,7 @@ watch(tags, (newTags) => {
   panes.value = [
     {
       title: 'Tổng quan',
-      content: 'Content tổng quan chưa có',
+      content: 'Ghi chú từ vựng để học tập và rèn luyện hiệu quả hơn.',
       key: '0',
       closable: false,
     },

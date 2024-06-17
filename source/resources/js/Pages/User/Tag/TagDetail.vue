@@ -11,7 +11,9 @@ import { IdcardFilled, PlusSquareOutlined, SearchOutlined,
 const { props } = usePage();
 const tags = ref(props.tags);
 const cards = ref(props.cards);
+const valueCards = cards.value;
 const examples = ref(props.examples);
+console.log(examples.value);
 const notLearn = ref(props.notLearn);
 const learning = ref(props.learning);
 const learned = ref(props.learned);
@@ -158,6 +160,15 @@ const showConfirm = () => {
   });
 };
 
+function speak (text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(utterance);
+};
+
+function star(cardId) {
+    Inertia.post(route('card.update'), {cardId: cardId});
+}
+
 </script>
 
 <template>
@@ -230,7 +241,7 @@ const showConfirm = () => {
                     </div>
                     <br/>
                     <div>
-                        <Card class="custom-shadow" v-for="example in examples" :key="example.id">
+                        <Card class="custom-shadow" v-for="(example, index) in examples" :key="index">
                             <CardGrid style="width: 10%; text-align: left" :hoverable="false">
                                 {{ example[0].name }}
                             </CardGrid>
@@ -240,10 +251,10 @@ const showConfirm = () => {
                             <CardGrid style="width: 10%; text-align: center" :hoverable="false">
                                 <Space>
                                     <a>
-                                        <StarFilled :style="{color: example[0].is_favorite === 1 ? 'yellow' : 'black'}" style="font-size: 24px;"></StarFilled>
+                                        <StarFilled @click="star((valueCards[index]).id)" :style="{color: example[0].is_favorite === 1 ? 'yellow' : 'black'}" style="font-size: 24px;"></StarFilled>
                                     </a>
                                     <a>
-                                        <SoundFilled style="font-size: 24px;"></SoundFilled>
+                                        <SoundFilled @click="speak(example[0].name)" style="font-size: 24px;"></SoundFilled>
                                     </a>
                                 </Space>
                             </CardGrid>
